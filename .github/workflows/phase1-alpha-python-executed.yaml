@@ -1,0 +1,64 @@
+name: Run a python process
+
+on:
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: 'Environment'
+        required: true
+        default: 'preprod'
+      PYTHON_FILE_PATH:
+        description: 'Fully qualified path to python file'
+        required: true
+        default: './workloads/python/alpha.py'
+
+#Phase 1 - Alpha - Executed
+jobs:
+  Phase1-Alpha-Python-Executed:
+    runs-on: ubuntu-latest
+    # todo implement quality strategy by tiger team committee
+    # strategy:
+    #   matrix:
+    #       package:
+    #           - coding-standard
+    #           - python-lint-rules
+    #           - commit-guidelines
+    #           - pull-request-peer-review
+    #           - quality-checks
+
+    # todo Implement principle of least priv based on need
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    permissions:
+      contents: write
+      id-token: write
+      issues: write
+      actions: write
+      deployments: write
+      repository-projects: write
+      checks: write
+      packages: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+
+    steps:
+      # Checkout the repo
+    - name: Check out Repo
+      uses: actions/checkout@v3
+
+    # Setup Python versions
+    - name: Setup Python versions
+      uses: actions/setup-python@v3
+      with:
+        # Semantic version range syntax or exact version of a Python version
+        python-version: ${{ secrets.PYTHON_VERSION }}
+        # Optional - x64 or x86 architecture, defaults to x64
+        architecture: ${{ secrets.PYTHON_ARCHITECTURE }}
+
+    # Printing the current Python version & can perform python to perform file or src move operations in advance of repo creation
+    - name: Display Python version & Execute python on the file list
+      shell: bash
+      run: | 
+        python -c "import sys; print(sys.version)"
+        python ${{ github.event.inputs.PYTHON_FILE_PATH }} '1${{ secrets.PULLED_FROM_KEYVAULT }}' '2${{ secrets.PULLED_FROM_CYBERARK }}'
+        
